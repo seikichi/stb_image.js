@@ -16,7 +16,7 @@ class STBImage {
       cwrap('free', 'number', ['number']);
     var getValue = Module['getValue'];
 
-    var filename = 'imagedata';    
+    var filename = 'imagedata';
     var widthPtr = malloc(4);
     var heightPtr = malloc(4);
     var colorsPtr = malloc(4);
@@ -34,7 +34,15 @@ class STBImage {
     free(colorsPtr);
   }
   copyToImageData(imageData: ImageData): void {
-    imageData.data.set(this.data);
+    var source = this.data;
+    var dest = imageData.data;
+    if ('set' in dest) {
+      dest.set(source);
+    } else {
+      for (var i = 0, len = dest.length; i < len; ++i) {
+        dest[i] = source[i];
+      }
+    }
   }
 }
 
