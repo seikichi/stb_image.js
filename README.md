@@ -1,7 +1,7 @@
 # stb_image.js
 stb_image.js is a pure Javascript image decoder.
 
-It is a port of the [stb_image.c](http://nothings.org/) by compiling the LibTIFF C code with Emscripten.
+It is a port of the [stb_image.c](http://nothings.org/) by compiling the C code with Emscripten.
 
 ## Demo
 - [http://seikichi.github.io/stb_image.js/](http://seikichi.github.io/stb_image.js/)
