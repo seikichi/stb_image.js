@@ -12,6 +12,7 @@ It is a port of the [stb_image.c](http://nothings.org/) by compiling the LibTIFF
   var width = image.width;
   var height = image.height;
   var pixels = image.data;
+  image.close();
 ```
 
 # Supported Image Formats

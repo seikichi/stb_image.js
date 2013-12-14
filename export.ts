@@ -6,8 +6,20 @@ class STBImage {
   width: number;
   height: number;
   data: Uint8Array;
-  constructor(buffer: ArrayBuffer, options: any = {}) {
-    var Module = loadModule(options);
+  _dataPtr: number;
+
+  private static Module: typeof Module = null;
+  private static filenameId: number = 0;
+
+  static initialize(options: any): typeof Module {
+    if (STBImage.Module === null) {
+      STBImage.Module = loadModule(options);
+    }
+    return STBImage.Module;
+  }
+
+  constructor(buffer: ArrayBuffer) {
+    var Module = STBImage.initialize({});
     var cwrap = Module['cwrap'];
     var ccall = Module['ccall'];
     var malloc: (size: number) => number =
@@ -16,12 +28,12 @@ class STBImage {
       cwrap('free', 'number', ['number']);
     var getValue = Module['getValue'];
 
-    var filename = 'imagedata';
+    var filename = String(++STBImage.filenameId);
     var widthPtr = malloc(4);
     var heightPtr = malloc(4);
     var colorsPtr = malloc(4);
     (<any>Module)['FS_createDataFile']('/', filename, new Uint8Array(buffer), true, false);
-    var dataPtr: number = ccall('stbi_load', 'number', [
+    var dataPtr: number = this._dataPtr = ccall('stbi_load', 'number', [
       'string', 'number', 'number', 'number', 'number'], [
         filename, widthPtr, heightPtr, colorsPtr, 4]);
     this.width = getValue(widthPtr, 'i32');
@@ -44,9 +56,16 @@ class STBImage {
       }
     }
   }
+  close(): void {
+    var Module = STBImage.initialize({});
+    var ccall = Module['ccall'];
+    ccall('stbi_image_free', 'number', ['number'], [this._dataPtr]);
+  }
 }
 
 STBImage.prototype['copyToImageData'] = STBImage.prototype.copyToImageData;
+STBImage.prototype['close'] = STBImage.prototype.close;
+STBImage['initialize'] = STBImage.initialize;
 
 // export to node, amd, window or worker
 declare var process: any;
