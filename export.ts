@@ -32,7 +32,7 @@ class STBImage {
     var widthPtr = malloc(4);
     var heightPtr = malloc(4);
     var colorsPtr = malloc(4);
-    (<any>Module)['FS_createDataFile']('/', filename, new Uint8Array(buffer), true, false);
+    Module['FS'].createDataFile('/', filename, new Uint8Array(buffer), true, false);
     var dataPtr: number = this._dataPtr = ccall('stbi_load', 'number', [
       'string', 'number', 'number', 'number', 'number'], [
         filename, widthPtr, heightPtr, colorsPtr, 4]);
@@ -41,6 +41,7 @@ class STBImage {
     var buffer: ArrayBuffer = Module['HEAP8'].buffer;
     this.data = new Uint8Array(buffer).subarray(
       dataPtr, dataPtr + this.width * this.height * 4);
+    Module['FS'].deleteFile('/' + filename);
     free(widthPtr);
     free(heightPtr);
     free(colorsPtr);
